@@ -8,7 +8,6 @@ app = Flask(__name__)
 DATABASE_NAME = "biblioteca_db"
 database.DB_NAME = DATABASE_NAME
 
-# Opções para o campo "Número da Edição"
 OPCOES_EDICAO_ESPECIAL = ['Edição Única', 'Volume Único']
 
 @app.route('/')
@@ -24,6 +23,7 @@ def listar_livros():
             l.localizacao,
             l.edicao,
             l.mangaka,
+            l.informacoes, -- Novo campo
             STRING_AGG(a.nome, ', ') AS autores_nomes
         FROM
             livros l
@@ -32,7 +32,7 @@ def listar_livros():
         LEFT JOIN
             autores a ON la.autor_id = a.id
         GROUP BY
-            l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka
+            l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka, l.informacoes
         ORDER BY
             l.nome ASC;
     """
@@ -51,13 +51,14 @@ def adicionar_livro():
         autores_input = request.form.getlist('autor')
         edicao = request.form.get('edicao_input')
         edicao_especial = request.form.get('edicao_especial')
+        informacoes = request.form.get('informacoes') # Novo campo
 
         final_edicao = edicao_especial if edicao_especial else edicao
         mangaka = request.form.get('mangaka')
 
         try:
-            query_livro = "INSERT INTO livros (nome, tipo, genero, editora, localizacao, edicao, mangaka) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id"
-            livro_id = database.fetch_last_inserted_id(query_livro, (nome, tipo, genero, editora, localizacao, final_edicao, mangaka if tipo == 'Mangá' else None))
+            query_livro = "INSERT INTO livros (nome, tipo, genero, editora, localizacao, edicao, mangaka, informacoes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id"
+            livro_id = database.fetch_last_inserted_id(query_livro, (nome, tipo, genero, editora, localizacao, final_edicao, mangaka if tipo == 'Mangá' else None, informacoes))
 
             if livro_id:
                 if tipo != 'Mangá':
@@ -82,7 +83,7 @@ def adicionar_livro():
             pass
 
     tipos_db = [t[0] for t in database.fetch_all_tipos()]
-    generos_db = [g[0] for g in database.fetch_all_generos()] # CORRIGIDO AQUI!
+    generos_db = [g[0] for g in database.fetch_all_generos()]
     localizacoes_db = [l[0] for l in database.fetch_all_localizacoes()]
 
     return render_template('adicionar_livro.html', tipos=tipos_db,
@@ -94,7 +95,8 @@ def adicionar_livro():
 def buscar_livros():
     """Exibe o formulário de busca e processa a busca."""
     resultados = []
-    campos_busca = ['Nome', 'Tipo', 'Gênero', 'Autor/Mangaká', 'Editora', 'Localização', 'Número da Edição']
+    # Adicionado 'Informações' como campo de busca
+    campos_busca = ['Nome', 'Tipo', 'Gênero', 'Autor/Mangaká', 'Editora', 'Localização', 'Número(s) de Edições', 'Informações']
 
     if request.method == 'POST':
         termo = request.form.get('termo')
@@ -108,27 +110,33 @@ def buscar_livros():
                 query = ""
                 params = ()
 
+                # Incluir 'informacoes' em todas as queries para exibir
+                select_clause = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka, informacoes FROM livros"
+
                 if campo == 'Nome':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(nome) LIKE %s ORDER BY nome"
+                    query = f"{select_clause} WHERE LOWER(nome) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
                 elif campo == 'Tipo':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(tipo) LIKE %s ORDER BY nome"
+                    query = f"{select_clause} WHERE LOWER(tipo) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
                 elif campo == 'Gênero':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(genero) LIKE %s ORDER BY nome"
+                    query = f"{select_clause} WHERE LOWER(genero) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
                 elif campo == 'Editora':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(editora) LIKE %s ORDER BY nome"
+                    query = f"{select_clause} WHERE LOWER(editora) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
                 elif campo == 'Localização':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(localizacao) LIKE %s ORDER BY nome"
+                    query = f"{select_clause} WHERE LOWER(localizacao) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
-                elif campo == 'Número da Edição':
-                    query = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE LOWER(edicao) LIKE %s ORDER BY nome"
+                elif campo == 'Número(s) de Edições': # Campo de busca atualizado
+                    query = f"{select_clause} WHERE LOWER(edicao) LIKE %s ORDER BY nome"
+                    params = (termo_lower,)
+                elif campo == 'Informações': # Novo campo de busca
+                    query = f"{select_clause} WHERE LOWER(informacoes) LIKE %s ORDER BY nome"
                     params = (termo_lower,)
                 elif campo == 'Autor/Mangaká':
                     query = """
-                        SELECT DISTINCT l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka
+                        SELECT DISTINCT l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka, l.informacoes
                         FROM livros l
                         LEFT JOIN livro_autor la ON l.id = la.livro_id
                         LEFT JOIN autores a ON la.autor_id = a.id
@@ -162,7 +170,8 @@ def editar_livro(livro_id):
     livro = None
     autores_livro = []
 
-    query_livro = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka FROM livros WHERE id = %s"
+    # Incluir 'informacoes' na busca
+    query_livro = "SELECT id, nome, tipo, genero, editora, localizacao, edicao, mangaka, informacoes FROM livros WHERE id = %s"
     livro_data = database.fetch_one(query_livro, (livro_id,))
 
     if livro_data:
@@ -174,7 +183,8 @@ def editar_livro(livro_id):
             'editora': livro_data[4],
             'localizacao': livro_data[5],
             'edicao': livro_data[6],
-            'mangaka': livro_data[7]
+            'mangaka': livro_data[7],
+            'informacoes': livro_data[8] # Novo campo
         }
         if livro['tipo'] != 'Mangá':
             autores_raw = database.fetch_all("""
@@ -193,19 +203,22 @@ def editar_livro(livro_id):
         autores_input = request.form.getlist('autor')
         edicao = request.form.get('edicao_input')
         edicao_especial = request.form.get('edicao_especial')
+        informacoes = request.form.get('informacoes') # Novo campo
 
         final_edicao = edicao_especial if edicao_especial else edicao
         mangaka = request.form.get('mangaka')
 
+        # Incluir 'informacoes' no UPDATE
         query_update_livro = """
             UPDATE livros
-            SET nome = %s, tipo = %s, genero = %s, editora = %s, localizacao = %s, edicao = %s, mangaka = %s
+            SET nome = %s, tipo = %s, genero = %s, editora = %s, localizacao = %s, edicao = %s, mangaka = %s, informacoes = %s
             WHERE id = %s
         """
         success = database.execute_query(query_update_livro, (
             nome, tipo, genero, editora, localizacao,
             final_edicao,
             mangaka if tipo == 'Mangá' else None,
+            informacoes, # Novo campo
             livro_id
         ))
 
@@ -214,6 +227,7 @@ def editar_livro(livro_id):
                 database.execute_query("DELETE FROM livro_autor WHERE livro_id = %s", (livro_id,))
 
                 for autor_nome in autores_input:
+                # ... (restante da lógica de autores) ...
                     autor_nome = autor_nome.strip()
                     if autor_nome:
                         autor_tuple = database.fetch_one("SELECT id FROM autores WHERE nome = %s", (autor_nome,))
@@ -278,6 +292,7 @@ def sugerir_graphic_novel():
     if graphic_novel_ids:
         random_id = random.choice(graphic_novel_ids)
 
+        # Incluir 'informacoes' na busca
         query_sugestao = """
             SELECT
                 l.id,
@@ -288,6 +303,7 @@ def sugerir_graphic_novel():
                 l.localizacao,
                 l.edicao,
                 l.mangaka,
+                l.informacoes, -- Novo campo
                 STRING_AGG(a.nome, ', ') AS autores_nomes
             FROM
                 livros l
@@ -298,7 +314,7 @@ def sugerir_graphic_novel():
             WHERE
                 l.id = %s
             GROUP BY
-                l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka;
+                l.id, l.nome, l.tipo, l.genero, l.editora, l.localizacao, l.edicao, l.mangaka, l.informacoes;
         """
         sugestao_raw = database.fetch_one(query_sugestao, (random_id,))
 
@@ -312,7 +328,8 @@ def sugerir_graphic_novel():
                 'localizacao': sugestao_raw[5],
                 'edicao': sugestao_raw[6],
                 'mangaka': sugestao_raw[7],
-                'autores_nomes': sugestao_raw[8]
+                'informacoes': sugestao_raw[8], # Novo campo
+                'autores_nomes': sugestao_raw[9]
             }
 
     return render_template('sugestao_graphic_novel.html', sugestao=sugestao)

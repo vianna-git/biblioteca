@@ -9,4 +9,5 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+# Alteração aqui: Usar Gunicorn para rodar a aplicação
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
