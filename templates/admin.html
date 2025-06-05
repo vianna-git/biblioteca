@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administração da Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Administração da Biblioteca</h1>
+
+    <h2>Adicionar Novo Gênero</h2>
+    <form method="POST">
+        <label for="novo_genero">Novo Gênero:</label>
+        <input type="text" id="novo_genero" name="novo_genero">
+        <button type="submit">Adicionar Gênero</button>
+    </form>
+    {% if generos %}
+    <h3>Gêneros Existentes:</h3>
+    <ul>
+        {% for genero in generos %}
+        <li>{{ genero[0] }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <hr>
+
+    <h2>Adicionar Novo Tipo</h2>
+    <form method="POST">
+        <label for="novo_tipo">Novo Tipo:</label>
+        <input type="text" id="novo_tipo" name="novo_tipo">
+        <button type="submit">Adicionar Tipo</button>
+    </form>
+    {% if tipos %}
+    <h3>Tipos Existentes:</h3>
+    <ul>
+        {% for tipo in tipos %}
+        <li>{{ tipo[0] }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <hr>
+
+    <h2>Adicionar Nova Localização</h2>
+    <form method="POST">
+        <label for="nova_localizacao">Nova Localização:</label>
+        <input type="text" id="nova_localizacao" name="nova_localizacao">
+        <button type="submit">Adicionar Localização</button>
+    </form>
+    {% if localizacoes %}
+    <h3>Localizações Existentes:</h3>
+    <ul>
+        {% for localizacao in localizacoes %}
+        <li>{{ localizacao[0] }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <hr>
+
+    <p><a href="{{ url_for('listar_livros') }}">Voltar para a Biblioteca</a></p>
+</body>
+</html>

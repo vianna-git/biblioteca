@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minha Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Minha Biblioteca</h1>
+    <div class="nav-links">
+        <a href="{{ url_for('adicionar_livro') }}">Adicionar Novo Livro</a>
+        <a href="{{ url_for('buscar_livros') }}">Buscar Livros</a>
+        <a href="{{ url_for('admin') }}">Administração</a>
+        <a href="{{ url_for('sugerir_graphic_novel') }}">Sugira uma Graphic Novel!</a>
+    </div>
+    <table class="livro-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Gênero</th>
+                <th>Editora</th>
+                <th>Autor(es)/Mangaká</th>
+                <th>Edição</th>
+                <th>Localização</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livro in livros %}
+            <tr>
+                <td>{{ livro[0] }}</td>
+                <td>{{ livro[1] }}</td>
+                <td>{{ livro[2] }}</td>
+                <td>{{ livro[3] }}</td>
+                <td>{{ livro[4] or '' }}</td>
+                <td>
+                    {% if livro[2] == 'Mangá' %}
+                        {{ livro[7] or '' }}
+                    {% else %}
+                        {{ livro[8] or '' }}
+                    {% endif %}
+                </td>
+                <td>{{ livro[6] or '' }}</td>
+                <td>{{ livro[5] }}</td>
+                <td>
+                    <a href="{{ url_for('editar_livro', livro_id=livro[0]) }}">Editar</a>
+                    <form action="{{ url_for('deletar_livro', livro_id=livro[0]) }}" method="POST" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Tem certeza que deseja deletar este livro?');">Deletar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

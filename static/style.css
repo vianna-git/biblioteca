@@ -1,0 +1,191 @@
+/* Estilos Gerais */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #0056b3;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Navegação/Links Principais */
+.nav-links {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    display: flex; /* Para alinhar os links horizontalmente */
+    flex-wrap: wrap; /* Permite que os links quebrem a linha em telas menores */
+    gap: 15px; /* Espaçamento entre os links */
+}
+
+.nav-links a {
+    font-weight: bold;
+    white-space: nowrap; /* Evita que os links quebrem no meio */
+}
+
+/* Formulários */
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="number"],
+form select {
+    width: calc(100% - 22px); /* Ajuste para padding e borda */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Garante que padding e borda não aumentem a largura total */
+}
+
+form button[type="submit"],
+.button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+form button[type="submit"]:hover,
+.button:hover {
+    background-color: #0056b3;
+}
+
+form button[type="button"] { /* Botão de "Adicionar Outro Autor" */
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+form button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden; /* Garante que os cantos arredondados funcionem com bordas da tabela */
+}
+
+table th, table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: top; /* Alinha o conteúdo ao topo nas células */
+}
+
+table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:hover {
+    background-color: #e6e6e6;
+}
+
+/* Estilos Específicos para Ações na Tabela */
+table td form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    box-shadow: none; /* Remove a sombra dos mini-formulários de deleção */
+}
+
+table td form button {
+    background: none;
+    color: #dc3545; /* Cor vermelha para deletar */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1em;
+}
+
+table td form button:hover {
+    color: #c82333;
+    text-decoration: none;
+}
+
+/* Mensagens */
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Estilos para o campo de Edição especial */
+#edicao_input, #edicao_especial {
+    display: inline-block;
+    width: calc(50% - 15px); /* Divide o espaço */
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+#edicao_especial {
+    width: calc(50% - 10px); /* Ajuste para o select */
+}
+
+/* Para garantir que o botão de cancelar fique alinhado */
+form .cancel-link {
+    margin-left: 10px;
+    padding: 10px 0; /* Para alinhar verticalmente com o botão */
+    display: inline-block; /* Permite espaçamento horizontal */
+}

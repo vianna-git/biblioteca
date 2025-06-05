@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Livro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Editar Livro: {{ livro.nome }}</h1>
+    <form method="POST">
+        <div>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" value="{{ livro.nome }}" required><br><br>
+        </div>
+        <div>
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo" required>
+                {% for t in tipos %}
+                <option value="{{ t }}" {% if livro.tipo == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+        <div>
+            <label for="genero">Gênero:</label>
+            <select id="genero" name="genero" required>
+                {% for g in generos %}
+                <option value="{{ g }}" {% if livro.genero == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+        <div>
+            <label for="editora">Editora:</label>
+            <input type="text" id="editora" name="editora" value="{{ livro.editora or '' }}"><br><br>
+        </div>
+        <div id="campo_autor">
+            <label>Autor(es):</label>
+            <div id="autores_existentes">
+                {% if autores_livro %}
+                    {% for autor in autores_livro %}
+                        <input type="text" name="autor" value="{{ autor }}" required><br>
+                    {% endfor %}
+                {% else %}
+                    <input type="text" name="autor" required><br>
+                {% endif %}
+            </div>
+            <div id="novos_autores"></div>
+            <button type="button" onclick="adicionarCampoAutor()">Adicionar Outro Autor</button>
+            <br><br>
+        </div>
+        <div id="campo_mangaka" style="display: none;">
+            <label for="mangaka">Mangaká:</label>
+            <input type="text" name="mangaka" value="{{ livro.mangaka or '' }}"><br><br>
+        </div>
+        <div id="campo_edicao">
+            <label for="edicao_input">Número da Edição:</label>
+            <input type="text" id="edicao_input" name="edicao_input" placeholder="Ex: 1, 2, I, II, Final"
+                   value="{% if livro.edicao not in opcoes_edicao_especial %}{{ livro.edicao or '' }}{% endif %}"><br>
+            <label for="edicao_especial">Ou escolha:</label>
+            <select id="edicao_especial" name="edicao_especial" onchange="toggleEdicaoInput()">
+                <option value="">-- Selecione --</option>
+                {% for opcao in opcoes_edicao_especial %}
+                <option value="{{ opcao }}" {% if livro.edicao == opcao %}selected{% endif %}>{{ opcao }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+        <div>
+            <label for="localizacao">Localização:</label>
+            <select id="localizacao" name="localizacao" required>
+                {% for l in localizacoes %}
+                <option value="{{ l }}" {% if livro.localizacao == l %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+        <button type="submit">Salvar Alterações</button>
+        <a href="{{ url_for('listar_livros') }}" class="cancel-link">Cancelar</a>
+    </form>
+
+    <script>
+        const tipoSelect = document.getElementById('tipo');
+        const campoAutorDiv = document.getElementById('campo_autor');
+        const campoMangakaDiv = document.getElementById('campo_mangaka');
+        const edicaoInput = document.getElementById('edicao_input');
+        const edicaoEspecialSelect = document.getElementById('edicao_especial');
+
+        const novosAutoresDiv = document.getElementById('novos_autores');
+
+        function atualizarCampos() {
+            const tipoSelecionado = tipoSelect.value;
+            if (tipoSelecionado === 'Mangá') {
+                campoAutorDiv.style.display = 'none';
+                campoMangakaDiv.style.display = 'block';
+            } else {
+                campoAutorDiv.style.display = 'block';
+                campoMangakaDiv.style.display = 'none';
+            }
+
+            const autorInput = campoAutorDiv.querySelector('input[name="autor"]');
+            const mangakaInput = campoMangakaDiv.querySelector('input[name="mangaka"]');
+            if (autorInput) {
+                autorInput.required = (tipoSelecionado !== 'Mangá');
+            }
+            if (mangakaInput) {
+                mangakaInput.required = (tipoSelecionado === 'Mangá');
+            }
+        }
+
+        function toggleEdicaoInput() {
+            if (edicaoEspecialSelect.value) {
+                edicaoInput.value = '';
+                edicaoInput.disabled = true;
+            } else {
+                edicaoInput.disabled = false;
+            }
+        }
+
+        function adicionarCampoAutor() {
+            const novoInput = document.createElement('input');
+            novoInput.type = 'text';
+            novoInput.name = 'autor';
+            novoInput.value = '';
+            novoInput.required = (tipoSelect.value !== 'Mangá');
+            const br = document.createElement('br');
+            novosAutoresDiv.appendChild(novoInput);
+            novosAutoresDiv.appendChild(br);
+        }
+
+        tipoSelect.addEventListener('change', atualizarCampos);
+        atualizarCampos();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleEdicaoInput();
+            const initialTipo = tipoSelect.value;
+            if (initialTipo === 'Mangá') {
+                campoAutorDiv.style.display = 'none';
+                campoMangakaDiv.style.display = 'block';
+            } else {
+                campoAutorDiv.style.display = 'block';
+                campoMangakaDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

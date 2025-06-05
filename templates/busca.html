@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buscar Livros</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Buscar Livros</h1>
+    <form method="POST">
+        <div>
+            <label for="termo">Termo de Busca:</label>
+            <input type="text" id="termo" name="termo" required value="{{ request.form.termo or '' }}">
+        </div>
+        <div>
+            <label for="campo_busca">Buscar por:</label>
+            <select id="campo_busca" name="campo_busca">
+                {% for campo in campos_busca %}
+                <option value="{{ campo }}" {% if request.form.campo_busca == campo %}selected{% endif %}>{{ campo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if resultados %}
+    <h2>Resultados da Busca ({{ resultados|length }} livro(s) encontrado(s))</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Gênero</th>
+                <th>Editora</th>
+                <th>Mangaká</th>
+                <th>Número da Edição</th>
+                <th>Localização</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livro in resultados %}
+            <tr>
+                <td>{{ livro[0] }}</td>
+                <td>{{ livro[1] }}</td>
+                <td>{{ livro[2] }}</td>
+                <td>{{ livro[3] }}</td>
+                <td>{{ livro[4] or '' }}</td>
+                <td>{{ livro[7] or '' }}</td>
+                <td>{{ livro[6] or '' }}</td>
+                <td>{{ livro[5] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% elif request.method == 'POST' %}
+    <p>Nenhum livro encontrado com o termo "{{ request.form.termo }}" no campo "{{ request.form.campo_busca }}".</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('listar_livros') }}">Voltar para a Biblioteca</a></p>
+</body>
+</html>

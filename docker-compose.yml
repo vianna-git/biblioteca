@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_HOST=postgres_db
+      - DATABASE_NAME=biblioteca_db
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_PORT=5432
+    networks:
+      - new-infra_home-network
+
+networks:
+  new-infra_home-network:
+    external: true
+    name: new-infra_home-network
+    driver: bridge

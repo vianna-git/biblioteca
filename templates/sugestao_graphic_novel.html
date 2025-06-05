@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sugestão de Graphic Novel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Sua Sugestão de Graphic Novel!</h1>
+
+    {% if sugestao %}
+        <p>Que tal ler:</p>
+        <div class="sugestao-card">
+            <h2>{{ sugestao.nome }}</h2>
+            <ul>
+                <li><strong>Tipo:</strong> {{ sugestao.tipo }}</li>
+                <li><strong>Gênero:</strong> {{ sugestao.genero }}</li>
+                {% if sugestao.editora %}
+                    <li><strong>Editora:</strong> {{ sugestao.editora }}</li>
+                {% endif %}
+                {% if sugestao.tipo == 'Mangá' %}
+                    {% if sugestao.mangaka %}
+                        <li><strong>Mangaká:</strong> {{ sugestao.mangaka }}</li>
+                    {% endif %}
+                {% else %}
+                    {% if sugestao.autores_nomes %}
+                        <li><strong>Autor(es):</strong> {{ sugestao.autores_nomes }}</li>
+                    {% endif %}
+                {% endif %}
+                <li><strong>Localização:</strong> {{ sugestao.localizacao }}</li>
+                {% if sugestao.edicao %}
+                    <li><strong>Número da Edição:</strong> {{ sugestao.edicao }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        <p><a href="{{ url_for('sugerir_graphic_novel') }}" class="button">Quero outra sugestão!</a></p>
+    {% else %}
+        <p>Não há Graphic Novels cadastradas na sua biblioteca para sugerir no momento.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('listar_livros') }}">Voltar para a Biblioteca</a></p>
+</body>
+</html>
